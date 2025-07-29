@@ -1,4 +1,13 @@
-///# Match routes and call controller functions
+/// Match routes and call controller functions
+
+// routes/notesRouter.js
+const {
+  getAllNotes,
+  getNotesById,
+  createNewNote,
+  updateNote,
+  deleteNote,
+} = require("../controller/notesController");
 
 const notesUUIDRegex = /^\/notes\/[0-9a-fA-F-]{36}$/;
 
@@ -8,22 +17,24 @@ const router = function (req, res) {
   // Set response header
   res.setHeader("Content-Type", "application/json");
 
+  let urlId = url.split("/")[2];
+
   if (url === "/notes" && method === "GET") {
     const allNotes = getAllNotes();
+
     // Respond with list of notes;
     res.statusCode = 200;
-    res.end(JSON.stringify(notes));
+    res.end(JSON.stringify(allNotes));
   } else if (notesUUIDRegex.test(url) && method === "GET") {
-    // Get ID from URL
-    const urlId = url.split("/")[2];
+    //fetch note
+    const noteFetched = getNotesById(urlId);
 
     // respond with note if found
-    noteFetched = ge;
     if (noteFetched) {
       res.statusCode = 200;
       res.end(JSON.stringify(noteFetched));
     } else {
-      res.statusCode = 400;
+      res.statusCode = 404;
       res.end(JSON.stringify({ error: "Note Not Found" }));
     }
   } else if (url === "/notes" && method === "POST") {
@@ -31,7 +42,6 @@ const router = function (req, res) {
 
     // Listen for data chunks and collect
     req.on("data", (chunk) => {
-      console.log(chunk);
       body += chunk.toString(); // convert buffer to string
     });
 
@@ -42,7 +52,7 @@ const router = function (req, res) {
 
         console.log("Parsed data:", data);
 
-        /// store to notes array, give it an ID, and the time it was created
+        // create and get new note
         const newlyCreatedNote = createNewNote(data);
 
         res.statusCode = 201;
@@ -61,26 +71,26 @@ const router = function (req, res) {
     req.on("data", (chunk) => {
       body += chunk.toString(); // parse the
     });
-    console.log(body);
-    try {
-      req.on("end", () => {
+
+    req.on("end", () => {
+      try {
         const data = JSON.parse(body);
 
-        ///
-        let updatedNote = updateNote(data);
+        //update note
+        const updatedNote = updateNote(data);
+
         //Respond with updated note
         res.statusCode = 201;
         res.end(JSON.stringify({ message: "Updated sucessfull", updatedNote }));
-      });
-    } catch (error) {
-      console.log(error);
-      res.statusCode = 400;
-      res.end(
-        JSON.stringify({ error: "Couldn't update note. Please try again" })
-      );
-    }
+      } catch (error) {
+        console.log(error);
+        res.statusCode = 400;
+        res.end(
+          JSON.stringify({ error: "Couldn't update note. Please try again" })
+        );
+      }
+    });
   } else if (notesUUIDRegex.test(url) && method === "DELETE") {
-    const urlId = url.split("/")[2];
     deleteNote(urlId);
 
     res.statusCode = 201;

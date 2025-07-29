@@ -16,13 +16,17 @@ const getNotesById = function (id) {
 
 // create store new note
 const createNewNote = function (inputData) {
-  data = inputData;
+  const data = inputData;
+
+  // New note Template
   const newNote = {
     id: uuidv4(), //"123e4567-e89b-12d3-a456-426614174002",
     title: data.title,
     body: data.body,
     createdAt: new Date().getTime(),
   };
+
+  // Store new note
   notes.push(newNote);
   console.log(newNote);
   return newNote;
@@ -32,9 +36,11 @@ const createNewNote = function (inputData) {
 const updateNote = function (updatedData) {
   const newUpdatedNote = updatedData;
   console.log(newUpdatedNote);
+
   //First find the notes to update
   const noteToWorkOn = notes.find((e) => e.id === newUpdatedNote.id);
   console.log(noteToWorkOn);
+
   //update the note
   noteToWorkOn.title = newUpdatedNote.title;
   noteToWorkOn.body = newUpdatedNote.body;
@@ -53,4 +59,8 @@ const deleteNote = function (noteId) {
 
 module.exports = {
   getAllNotes,
+  getNotesById,
+  createNewNote,
+  updateNote,
+  deleteNote,
 };
